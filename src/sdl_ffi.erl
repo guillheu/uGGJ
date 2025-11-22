@@ -19,10 +19,6 @@ fill_rect(Renderer, X, Y, W, H) ->
     sdl_renderer:fill_rect(Renderer, {X, Y, W, H}).
 
 create_texture_from_file(Renderer, Filename) ->
-    % NewFilename = unicode:characters_to_binary(Filename),
-    % io:format("Filename: ~p~n", [Filename]),
-    % io:format("NewFilename: ~p~n", [NewFilename]),
-    % io:format("Works: ~p~n", ["src/lucy.png"]),
     {ok, Texture} = sdl_texture:create_from_file(Renderer, Filename),
     Texture.
 

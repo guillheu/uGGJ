@@ -26,7 +26,30 @@ pub type Event {
     xrel: Int,
     yrel: Int,
   )
+  KeyUp(
+    timestamp: Int,
+    action: KeyAction,
+    key_modifier: List(Atom),
+    repeat: Bool,
+    scancode: Int,
+    sym: Int,
+    window_id: Int,
+  )
+  KeyDown(
+    timestamp: Int,
+    action: KeyAction,
+    key_modifier: List(Atom),
+    repeat: Bool,
+    scancode: Int,
+    sym: Int,
+    window_id: Int,
+  )
   NoEvent
+}
+
+pub type KeyAction {
+  Pressed
+  Released
 }
 
 pub type EventDetails(any) =
