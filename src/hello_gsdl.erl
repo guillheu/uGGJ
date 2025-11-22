@@ -3,22 +3,10 @@
 -module(hello_gsdl).
 -export([run/0, init/0]).
 
-
-% -on_load(setup_paths/0).
-
-
-% setup_paths() ->
-%     code:add_pathz("/git/uGGJ/esdl2/_build/default/lib/esdl2/ebin"),
-%     ok.
-
-
 run() ->
 	spawn(fun init/0).
 
 init() ->
-    % code:add_pathz("../esdl2/_build/default/lib/esdl2/ebin"),
-	% application:load(sdl),
-	% application:set_env(sdl, priv_dir, "esdl2/_build/default/lib/esdl2/priv"),
 	ok = sdl:start([video]),
 	ok = sdl:stop_on_exit(),
 	{ok, Window} = sdl_window:create(<<"Hello SDL">>, 10, 10, 500, 500, []),

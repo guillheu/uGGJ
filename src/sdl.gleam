@@ -1,3 +1,6 @@
+import gleam/dict.{type Dict}
+import gleam/erlang/atom.{type Atom}
+
 // src/sdl.gleam
 
 /// Opaque type representing an SDL window
@@ -6,29 +9,29 @@ pub type Window
 /// Opaque type representing an SDL renderer
 pub type Renderer
 
-/// Opaque type representing a rectangle
-pub type Rect
-
 /// Opaque type representing an SDL event
-pub type Event
+pub type Event {
+  Quit(timestamp: Int)
+  Undefined(timestamp: Int)
+  MouseMotion(
+    timestamp: Int,
+    state: List(Nil),
+    which: Int,
+    y: Int,
+    window_id: Int,
+    x: Int,
+    xrel: Int,
+    yrel: Int,
+  )
+  NoEvent
+}
+
+pub type EventDetails(any) =
+  Dict(Atom, any)
 
 /// Initialize SDL with video subsystem
 @external(erlang, "sdl_ffi", "init")
-pub fn do_init() -> Nil
-
-/// Create a new window
-@external(erlang, "sdl_ffi", "create_window")
-pub fn do_create_window(
-  title: String,
-  x: Int,
-  y: Int,
-  width: Int,
-  height: Int,
-) -> Window
-
-/// Create a renderer for a window
-@external(erlang, "sdl_ffi", "create_renderer")
-pub fn do_create_renderer(window: Window) -> Renderer
+pub fn do_init(title: String, width: Int, height: Int) -> #(Window, Renderer)
 
 /// Set the drawing color (RGBA)
 @external(erlang, "sdl_ffi", "set_draw_color")
@@ -46,7 +49,7 @@ pub fn do_clear(renderer: Renderer) -> Nil
 
 /// Fill a rectangle with the current draw color
 @external(erlang, "sdl_ffi", "fill_rect")
-pub fn do_fill_rect(renderer: Renderer, rect: Rect) -> Nil
+pub fn do_fill_rect(renderer: Renderer, x: Int, y: Int, w: Int, h: Int) -> Nil
 
 /// Present the rendered content to the screen
 @external(erlang, "sdl_ffi", "present")
@@ -56,10 +59,9 @@ pub fn do_present(renderer: Renderer) -> Nil
 @external(erlang, "sdl_ffi", "poll_event")
 pub fn do_poll_event() -> Event
 
-/// Delay for a number of milliseconds
-@external(erlang, "sdl_ffi", "delay")
-pub fn do_delay(ms: Int) -> Nil
+@external(erlang, "sdl_ffi", "flush_events")
+pub fn do_flush_events() -> Nil
 
 /// Cleanup renderer and window, quit SDL
-@external(erlang, "sdl_ffi", "cleanup")
-pub fn do_cleanup(renderer: Renderer, window: Window) -> Nil
+@external(erlang, "sdl_ffi", "terminate")
+pub fn do_terminate() -> Nil

@@ -1,19 +1,13 @@
 -module(sdl_ffi).
--export([init/0, create_window/5, create_renderer/1, 
-         set_draw_color/5, clear/1, fill_rect/2, present/1,
-         poll_event/0, delay/1, cleanup/2]).
+-export([init/3, set_draw_color/5, clear/1, fill_rect/5, present/1,
+         poll_event/0, terminate/0, flush_events/0]).
 
-init() ->
-    code:add_pathz("esdl2/_build/default/lib/esdl2/ebin").
-    % esdl2:init([video]).
-
-create_window(Title, X, Y, Width, Height) ->
-    {ok, Window} = sdl_window:create(Title, X, Y, Width, Height, []),
-    Window.
-
-create_renderer(Window) ->
-    {ok, Renderer} = sdl_renderer:create(Window, -1, [accelerated]),
-    Renderer.
+init(Title, Width, Height) ->
+	ok = sdl:start([video]),
+	ok = sdl:stop_on_exit(),
+	{ok, Window} = sdl_window:create(Title, 10, 10, Width, Height, []),
+	{ok, Renderer} = sdl_renderer:create(Window, -1, [accelerated, present_vsync]),
+    {Window, Renderer}.
 
 set_draw_color(Renderer, R, G, B, A) ->
     sdl_renderer:set_draw_color(Renderer, R, G, B, A).
@@ -21,19 +15,28 @@ set_draw_color(Renderer, R, G, B, A) ->
 clear(Renderer) ->
     sdl_renderer:clear(Renderer).
 
-fill_rect(Renderer, Rect) ->
-    sdl_renderer:fill_rect(Renderer, Rect).
+fill_rect(Renderer, X, Y, W, H) ->
+    sdl_renderer:fill_rect(Renderer, {X, Y, W, H}).
 
 present(Renderer) ->
     sdl_renderer:present(Renderer).
 
 poll_event() ->
-    sdl_events:poll().
+    Event = sdl_events:poll(),
+    % io:format("Event: ~p~n", [Event]),
+    TransformedEvent = transform_event(Event),
+    % io:format("Transformed: ~p~n", [TransformedEvent]),
+    TransformedEvent.
 
-delay(Ms) ->
-    esdl2:delay(Ms).
+flush_events() ->
+    sdl_events:flush(mouse_motion).
 
-cleanup(Renderer, Window) ->
-    sdl_renderer:destroy(Renderer),
-    sdl_window:destroy(Window),
-    esdl2:quit().
+transform_event(false) ->
+    {no_event};
+transform_event(#{type := Type} = Event) ->
+    Values = maps:values(Event),
+    list_to_tuple([Type | lists:delete(Type, Values)]).
+
+terminate() ->
+    init:stop(),
+    exit(normal).
