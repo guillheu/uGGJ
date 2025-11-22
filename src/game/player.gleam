@@ -18,19 +18,24 @@ pub fn draw(renderer: sdl.Renderer, player: PlayerCharacter) -> Nil {
   }
 }
 
-pub fn apply_input(
+pub fn compute_new_position(
   input: input.Input(input.PlayerInput),
   player: PlayerCharacter,
+) -> #(Int, Int) {
+  case input {
+    input.Down -> #(player.x, player.y + config.map_tile_pixel_size)
+    input.Left -> #(player.x - config.map_tile_pixel_size, player.y)
+    input.Right -> #(player.x + config.map_tile_pixel_size, player.y)
+    input.Up -> #(player.x, player.y - config.map_tile_pixel_size)
+    _ -> #(player.x, player.y)
+  }
+}
+
+pub fn move_to(
+  new_position: #(Int, Int),
+  player: PlayerCharacter,
 ) -> PlayerCharacter {
-  let #(new_x, new_y) =
-    case input {
-      input.Down -> #(player.x, player.y + config.map_tile_pixel_size)
-      input.Left -> #(player.x - config.map_tile_pixel_size, player.y)
-      input.Right -> #(player.x + config.map_tile_pixel_size, player.y)
-      input.Up -> #(player.x, player.y - config.map_tile_pixel_size)
-      _ -> #(player.x, player.y)
-    }
-    |> echo
+  let #(new_x, new_y) = new_position
   case player {
     FromTexture(_, _, _, _, _) -> FromTexture(..player, x: new_x, y: new_y)
     FromTileMap(_, _, _, _, _) -> FromTileMap(..player, x: new_x, y: new_y)

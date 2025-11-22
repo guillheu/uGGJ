@@ -2,6 +2,7 @@ import game/config
 import game/input
 import game/map
 import game/player
+import gleam/dict
 import gleam/erlang/charlist
 import sdl
 
@@ -35,15 +36,26 @@ fn loop(state: State, renderer: sdl.Renderer) {
 }
 
 fn handle_events(state: State) -> State {
-  case sdl.do_poll_event() |> echo {
+  case sdl.do_poll_event() {
     sdl.Quit(_timestamp) -> {
       sdl.do_terminate()
       state
     }
-    sdl.KeyDown(_, sdl.Pressed, _, _, scancode, _, _) ->
-      input.scancode_to_player_input(scancode)
-      |> player.apply_input(state.player)
-      |> update_player(state)
+    sdl.KeyDown(_, sdl.Pressed, _, _, scancode, _, _) -> {
+      let new_player_position =
+        input.scancode_to_player_input(scancode)
+        |> player.compute_new_position(state.player)
+      case
+        new_player_position
+        |> map.pixel_position_to_tile_position
+        |> map.is_tile_walkable(state.map)
+      {
+        True ->
+          player.move_to(new_player_position, state.player)
+          |> update_player(state)
+        False -> state
+      }
+    }
     _ -> state
   }
 }
@@ -54,12 +66,22 @@ fn create_map(renderer: sdl.Renderer) -> map.Map {
       renderer,
       config.background_texture_filename |> charlist.from_string,
     )
+  let obstacle_sprite =
+    map.Texture(sdl.do_create_texture_from_file(
+      renderer,
+      config.map_obstacle_texture_filename |> charlist.from_string,
+    ))
+  let obstacles =
+    [
+      #(#(10, 10), map.Collider(obstacle_sprite)),
+      #(#(5, 5), map.Collider(obstacle_sprite)),
+    ]
+    |> dict.from_list
   map.Map(
-    config.map_tile_pixel_size,
     config.map_tiles_width,
     config.map_tiles_height,
     background_texture,
-    [],
+    obstacles,
   )
 }
 

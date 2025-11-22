@@ -13,3 +13,5 @@ pub const map_tiles_height = 20
 pub const background_texture_filename = "assets/gleam/lucy.png"
 
 pub const player_texture_filename = "assets/gleam/lucy.png"
+
+pub const map_obstacle_texture_filename = "assets/gleam/evil_lucy.png"
