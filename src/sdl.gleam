@@ -1,7 +1,10 @@
 import gleam/dict.{type Dict}
 import gleam/erlang/atom.{type Atom}
+import gleam/erlang/charlist
 
 // src/sdl.gleam
+
+pub type Texture
 
 /// Opaque type representing an SDL window
 pub type Window
@@ -50,6 +53,22 @@ pub fn do_clear(renderer: Renderer) -> Nil
 /// Fill a rectangle with the current draw color
 @external(erlang, "sdl_ffi", "fill_rect")
 pub fn do_fill_rect(renderer: Renderer, x: Int, y: Int, w: Int, h: Int) -> Nil
+
+@external(erlang, "sdl_ffi", "create_texture_from_file")
+pub fn do_create_texture_from_file(
+  renderer: Renderer,
+  filename: charlist.Charlist,
+) -> Texture
+
+@external(erlang, "sdl_ffi", "draw_texture")
+pub fn do_draw_texture(
+  renderer: Renderer,
+  texture: Texture,
+  x: Int,
+  y: Int,
+  w: Int,
+  h: Int,
+) -> Nil
 
 /// Present the rendered content to the screen
 @external(erlang, "sdl_ffi", "present")

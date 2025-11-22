@@ -1,5 +1,5 @@
 -module(sdl_ffi).
--export([init/3, set_draw_color/5, clear/1, fill_rect/5, present/1,
+-export([init/3, set_draw_color/5, create_texture_from_file/2, draw_texture/6, clear/1, fill_rect/5, present/1,
          poll_event/0, terminate/0, flush_events/0]).
 
 init(Title, Width, Height) ->
@@ -17,6 +17,17 @@ clear(Renderer) ->
 
 fill_rect(Renderer, X, Y, W, H) ->
     sdl_renderer:fill_rect(Renderer, {X, Y, W, H}).
+
+create_texture_from_file(Renderer, Filename) ->
+    % NewFilename = unicode:characters_to_binary(Filename),
+    % io:format("Filename: ~p~n", [Filename]),
+    % io:format("NewFilename: ~p~n", [NewFilename]),
+    % io:format("Works: ~p~n", ["src/lucy.png"]),
+    {ok, Texture} = sdl_texture:create_from_file(Renderer, Filename),
+    Texture.
+
+draw_texture(Renderer, Texture, X, Y, W, H) ->
+    sdl_renderer:copy(Renderer, Texture, undefined, #{x=>X, y=>Y, w=>W, h=>H}).
 
 present(Renderer) ->
     sdl_renderer:present(Renderer).
