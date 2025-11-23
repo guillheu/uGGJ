@@ -1,5 +1,7 @@
 -module(sdl_ffi).
--export([init/3, set_draw_color/5, create_texture_from_file/2, draw_texture/6, clear/1, fill_rect/5, present/1,
+-export([init/3, set_draw_color/5, create_texture_from_file/2,
+         draw_texture/6, draw_sub_texture/10,
+         clear/1, fill_rect/5, present/1,
          poll_event/0, terminate/0, flush_events/0]).
 
 init(Title, Width, Height) ->
@@ -24,6 +26,9 @@ create_texture_from_file(Renderer, Filename) ->
 
 draw_texture(Renderer, Texture, X, Y, W, H) ->
     sdl_renderer:copy(Renderer, Texture, undefined, #{x=>X, y=>Y, w=>W, h=>H}).
+
+draw_sub_texture(Renderer, Texture, TX, TY, TW, TH, X, Y, W, H) ->
+    sdl_renderer:copy(Renderer, Texture, #{x=>TX, y=>TY, w=>TW, h=>TH}, #{x=>X, y=>Y, w=>W, h=>H}).
 
 present(Renderer) ->
     sdl_renderer:present(Renderer).

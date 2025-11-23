@@ -93,6 +93,20 @@ pub fn do_draw_texture(
   h: Int,
 ) -> Nil
 
+@external(erlang, "sdl_ffi", "draw_sub_texture")
+pub fn do_draw_sub_texture(
+  renderer: Renderer,
+  texture: Texture,
+  tx: Int,
+  ty: Int,
+  tw: Int,
+  th: Int,
+  x: Int,
+  y: Int,
+  w: Int,
+  h: Int,
+) -> Nil
+
 /// Present the rendered content to the screen
 @external(erlang, "sdl_ffi", "present")
 pub fn do_present(renderer: Renderer) -> Nil

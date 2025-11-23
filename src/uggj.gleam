@@ -2,6 +2,7 @@ import game/config
 import game/input
 import game/map
 import game/player
+import game/tilemap
 import gleam/dict
 import gleam/erlang/charlist
 import sdl
@@ -42,8 +43,14 @@ fn handle_events(state: State) -> State {
       state
     }
     sdl.KeyDown(_, sdl.Pressed, _, _, scancode, _, _) -> {
+      let player_input = input.scancode_to_player_input(scancode)
+
+      let state =
+        player.turn_player(state.player, player_input)
+        |> update_player(state)
+
       let new_player_position =
-        input.scancode_to_player_input(scancode)
+        player_input
         |> player.compute_new_position(state.player)
       case
         new_player_position
@@ -73,7 +80,7 @@ fn create_map(renderer: sdl.Renderer) -> map.Map {
     ))
   let obstacles =
     [
-      #(#(10, 10), map.Collider(obstacle_sprite)),
+      #(#(6, 6), map.Collider(obstacle_sprite)),
       #(#(5, 5), map.Collider(obstacle_sprite)),
     ]
     |> dict.from_list
@@ -91,13 +98,12 @@ fn create_player(renderer: sdl.Renderer) -> player.PlayerCharacter {
       renderer,
       config.player_texture_filename |> charlist.from_string,
     )
-  player.FromTexture(
-    player_texture,
-    0,
-    0,
-    config.map_tile_pixel_size,
-    config.map_tile_pixel_size,
-  )
+
+  let player_tilemap = tilemap.TileMap(player_texture, 16, 32)
+
+  let player_tilemap_item = tilemap.Sprite(player_tilemap, 3, 0)
+
+  player.FromTileMap(player_tilemap_item, 0, 1, 16, 32, 0, -64)
 }
 
 fn update_player(player: player.PlayerCharacter, state: State) -> State {
